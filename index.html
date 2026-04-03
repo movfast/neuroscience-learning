@@ -78,6 +78,14 @@ body {
 .tab:hover { color: var(--text); background: var(--surface-elevated); }
 .tab.active { color: var(--secondary); background: var(--surface-elevated); }
 
+.author-tag {
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    margin-left: 8px;
+    letter-spacing: 0.5px;
+}
+
 /* Sidebar */
 #sidebar {
     grid-area: sidebar;
@@ -444,6 +452,7 @@ body {
         <button class="tab" data-tab="how-we-learn">How We Learn</button>
         <button class="tab" data-tab="neural-activity">Neural Activity</button>
     </div>
+    <span class="author-tag">by Marian Helcl &Oslash;verli</span>
 </div>
 
 <div id="sidebar">
