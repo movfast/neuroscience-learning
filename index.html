@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroExplorer - Interactive Brain Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0a0a1a;
+    --surface: #12122a;
+    --surface-elevated: #1a1a3a;
+    --primary: #6c63ff;
+    --secondary: #00e5ff;
+    --tertiary: #ff6b9d;
+    --text: #e0e0ff;
+    --text-dim: #8888aa;
+    --success: #00ff88;
+    --radius: 12px;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 56px 1fr 100px;
+    grid-template-columns: 320px 1fr;
+    grid-template-areas:
+        "header header"
+        "sidebar viewport"
+        "bottom bottom";
+}
+
+/* Header */
+#header {
+    grid-area: header;
+    background: var(--surface);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.2);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 32px;
+    z-index: 10;
+}
+
+#header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+}
+
+.tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.tab {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.tab:hover { color: var(--text); background: var(--surface-elevated); }
+.tab.active { color: var(--secondary); background: var(--surface-elevated); }
+
+/* Sidebar */
+#sidebar {
+    grid-area: sidebar;
+    background: rgba(18, 18, 42, 0.85);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(108, 99, 255, 0.15);
+    overflow-y: auto;
+    padding: 16px;
+    z-index: 5;
+    transition: transform 0.3s ease;
+}
+
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-track { background: transparent; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+.region-card {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 6px;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.region-card:hover {
+    background: var(--surface-elevated);
+    border-color: rgba(108, 99, 255, 0.2);
+}
+
+.region-card.active {
+    background: var(--surface-elevated);
+    border-color: var(--primary);
+}
+
+.region-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.region-card-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.region-card-short {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+
+/* Detail Panel */
+#detail-panel {
+    display: none;
+}
+
+#detail-panel.active {
+    display: block;
+}
+
+#region-list.hidden { display: none; }
+
+.detail-back {
+    border: none;
+    background: none;
+    color: var(--secondary);
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: 16px;
+    font-family: inherit;
+    padding: 4px 0;
+}
+
+.detail-back:hover { text-decoration: underline; }
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.detail-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px currentColor;
+}
+
+.detail-name {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.detail-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.detail-section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.detail-functions {
+    list-style: none;
+    margin-bottom: 20px;
+}
+
+.detail-functions li {
+    font-size: 13px;
+    padding: 6px 0;
+    padding-left: 16px;
+    position: relative;
+    color: var(--text);
+    opacity: 0.85;
+}
+
+.detail-functions li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--secondary);
+}
+
+.fun-fact {
+    background: var(--surface-elevated);
+    border-left: 3px solid var(--tertiary);
+    padding: 12px 16px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.fun-fact-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--tertiary);
+    margin-bottom: 4px;
+}
+
+.related-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.related-link {
+    font-size: 12px;
+    padding: 4px 12px;
+    background: rgba(108, 99, 255, 0.15);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--primary);
+    transition: all 0.2s;
+}
+
+.related-link:hover {
+    background: rgba(108, 99, 255, 0.3);
+}
+
+/* Learning sidebar */
+.topic-card {
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+}
+
+.topic-card:hover {
+    background: var(--surface-elevated);
+    border-color: rgba(0, 229, 255, 0.2);
+}
+
+.topic-card.active {
+    background: var(--surface-elevated);
+    border-color: var(--secondary);
+}
+
+.topic-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.topic-card-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.4;
+}
+
+/* Learning detail */
+#learning-detail {
+    display: none;
+}
+
+#learning-detail.active { display: block; }
+#learning-list.hidden { display: none; }
+
+.learning-content {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    opacity: 0.9;
+}
+
+.learning-content h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--secondary);
+}
+
+.learning-content p {
+    margin-bottom: 14px;
+}
+
+.learning-content .key-point {
+    background: var(--surface-elevated);
+    border-left: 3px solid var(--secondary);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+/* Viewport */
+#viewport {
+    grid-area: viewport;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at center, #0f0f2a 0%, #0a0a1a 70%);
+}
+
+#viewport canvas {
+    display: block;
+}
+
+#labels-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.region-label {
+    position: absolute;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(224, 224, 255, 0.8);
+    text-shadow: 0 0 8px rgba(108, 99, 255, 0.5);
+    white-space: nowrap;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    transition: opacity 0.3s;
+}
+
+/* Bottom Panel */
+#bottom-panel {
+    grid-area: bottom;
+    background: var(--surface);
+    border-top: 1px solid rgba(108, 99, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+#neural-strip {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.speed-control {
+    position: absolute;
+    bottom: 8px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-dim);
+    z-index: 3;
+}
+
+.speed-control input[type="range"] {
+    width: 80px;
+    accent-color: var(--primary);
+}
+
+/* Help tooltip */
+#help-tooltip {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: rgba(18, 18, 42, 0.9);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(108, 99, 255, 0.3);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+}
+
+#help-tooltip.visible { opacity: 1; }
+
+/* Neural Activity tab content */
+#neural-info {
+    display: none;
+}
+
+#neural-info.active { display: block; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        grid-template-columns: 1fr;
+        grid-template-rows: 56px 1fr 200px 100px;
+        grid-template-areas:
+            "header"
+            "viewport"
+            "sidebar"
+            "bottom";
+    }
+    #sidebar { border-right: none; border-top: 1px solid rgba(108, 99, 255, 0.15); }
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+    <h1>NEUROEXPLORER</h1>
+    <div class="tab-bar">
+        <button class="tab active" data-tab="brain-atlas">Brain Atlas</button>
+        <button class="tab" data-tab="how-we-learn">How We Learn</button>
+        <button class="tab" data-tab="neural-activity">Neural Activity</button>
+    </div>
+</div>
+
+<div id="sidebar">
+    <!-- Brain Atlas sidebar -->
+    <div id="atlas-sidebar">
+        <div id="region-list"></div>
+        <div id="detail-panel"></div>
+    </div>
+
+    <!-- How We Learn sidebar -->
+    <div id="learn-sidebar" style="display:none;">
+        <div id="learning-list"></div>
+        <div id="learning-detail"></div>
+    </div>
+
+    <!-- Neural Activity sidebar -->
+    <div id="neural-info">
+        <h3 style="font-size:18px; margin-bottom:12px; color:var(--secondary);">Neural Signal Transmission</h3>
+        <div class="learning-content">
+            <p>Watch how electrical signals travel through neurons — the fundamental process behind every thought, movement, and sensation.</p>
+            <div class="key-point"><strong>Action Potential:</strong> An electrical impulse (~100 mV) that travels along the axon at speeds up to 120 m/s.</div>
+            <div class="key-point"><strong>Saltatory Conduction:</strong> Signals "jump" between gaps in the myelin sheath (Nodes of Ranvier), dramatically increasing speed.</div>
+            <div class="key-point"><strong>Synaptic Transmission:</strong> At the axon terminal, neurotransmitters are released across the synaptic cleft to the next neuron.</div>
+            <div class="key-point"><strong>Neurotransmitters:</strong> Chemical messengers including dopamine (reward), serotonin (mood), GABA (inhibition), and glutamate (excitation).</div>
+            <p style="margin-top:16px; color:var(--text-dim); font-size:12px;">Use the speed slider at the bottom to control animation speed. The 3D view shows a detailed neuron model with signal propagation.</p>
+        </div>
+    </div>
+</div>
+
+<div id="viewport">
+    <div id="labels-container"></div>
+    <div id="help-tooltip">
+        Drag to rotate &middot; Scroll to zoom &middot; Click region to explore
+    </div>
+</div>
+
+<div id="bottom-panel">
+    <canvas id="neural-strip"></canvas>
+    <div class="speed-control">
+        <span>Speed</span>
+        <input type="range" id="speed-slider" min="0.2" max="3" step="0.1" value="1">
+    </div>
+</div>
+
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ==================== DATA ====================
+
+const BRAIN_REGIONS = [
+    {
+        id: 'prefrontal-cortex',
+        name: 'Prefrontal Cortex',
+        color: 0x6c63ff,
+        position: [0, 1.2, 2.5],
+        scale: [1.8, 1.2, 1.0],
+        shortDesc: 'The CEO of the brain',
+        description: 'The prefrontal cortex sits at the very front of the brain and is the seat of our highest cognitive abilities. It orchestrates complex thoughts, plans for the future, and governs our social behavior. This region allows us to weigh consequences, suppress urges, and focus attention — essentially making us who we are as thinking beings.',
+        functions: ['Decision making and planning', 'Working memory and attention', 'Personality expression', 'Social behavior and impulse control', 'Abstract reasoning'],
+        funFact: 'The prefrontal cortex is not fully developed until around age 25, which is why teenagers often struggle with impulse control and long-term planning.',
+        relatedRegions: ['amygdala', 'hippocampus', 'motor-cortex']
+    },
+    {
+        id: 'motor-cortex',
+        name: 'Motor Cortex',
+        color: 0xff6b6b,
+        position: [0, 2.2, 0.5],
+        scale: [2.5, 0.4, 0.8],
+        shortDesc: 'Movement command center',
+        description: 'The motor cortex is a strip running across the top of the brain like a headband. It controls all voluntary movements — from typing on a keyboard to running a marathon. The body is mapped onto this strip in a distorted way: areas requiring fine control (like hands and lips) get disproportionately large representation.',
+        functions: ['Voluntary movement initiation', 'Fine motor coordination', 'Motor planning and sequencing', 'Learning new motor skills', 'Speech motor control'],
+        funFact: 'The "homunculus" — a map of the body on the motor cortex — shows hands and face taking up nearly half the space, reflecting the incredible dexterity humans have in these areas.',
+        relatedRegions: ['cerebellum', 'parietal-lobe', 'prefrontal-cortex']
+    },
+    {
+        id: 'parietal-lobe',
+        name: 'Parietal Lobe',
+        color: 0xffd93d,
+        position: [0, 2.0, -0.8],
+        scale: [2.2, 1.0, 1.2],
+        shortDesc: 'Sensory integration hub',
+        description: 'The parietal lobe integrates sensory information from all over the body, creating a unified perception of the world around you. It processes touch, temperature, pain, and spatial awareness. This region lets you know where your body is in space and helps you navigate your environment.',
+        functions: ['Sensory integration and processing', 'Spatial awareness and navigation', 'Number and math processing', 'Body position awareness (proprioception)', 'Attention and perception'],
+        funFact: 'Damage to the right parietal lobe can cause "hemispatial neglect" — patients literally ignore the entire left side of their world, even leaving food on the left side of their plate.',
+        relatedRegions: ['motor-cortex', 'occipital-lobe', 'temporal-lobe-l']
+    },
+    {
+        id: 'occipital-lobe',
+        name: 'Occipital Lobe',
+        color: 0x4ecdc4,
+        position: [0, 0.8, -2.5],
+        scale: [1.6, 1.2, 0.8],
+        shortDesc: 'Visual processing center',
+        description: 'Located at the back of the brain, the occipital lobe is the primary visual processing center. Despite being far from the eyes, all visual information is routed here for processing. It decodes color, shape, motion, and depth to create the rich visual world you experience.',
+        functions: ['Primary visual processing', 'Color and shape recognition', 'Motion detection and tracking', 'Depth perception', 'Visual memory formation'],
+        funFact: 'The occipital lobe processes visual information so fast that you can recognize a face in just 100 milliseconds — faster than you can blink.',
+        relatedRegions: ['parietal-lobe', 'temporal-lobe-l', 'temporal-lobe-r']
+    },
+    {
+        id: 'temporal-lobe-l',
+        name: 'Temporal Lobe (Left)',
+        color: 0xff9a56,
+        position: [-2.2, 0, 0.5],
+        scale: [0.8, 0.9, 1.8],
+        shortDesc: 'Language and hearing',
+        description: 'The left temporal lobe is critical for language comprehension and auditory processing. It houses Wernicke\'s area, which is essential for understanding spoken and written language. It also processes auditory information and contributes to verbal memory.',
+        functions: ['Language comprehension (Wernicke\'s area)', 'Auditory processing', 'Verbal memory storage', 'Face and object recognition', 'Semantic knowledge'],
+        funFact: 'Wernicke\'s area in the left temporal lobe is so specialized for language that damage here produces "fluent aphasia" — patients speak in grammatically correct but completely meaningless sentences.',
+        relatedRegions: ['temporal-lobe-r', 'hippocampus', 'prefrontal-cortex']
+    },
+    {
+        id: 'temporal-lobe-r',
+        name: 'Temporal Lobe (Right)',
+        color: 0xff9a56,
+        position: [2.2, 0, 0.5],
+        scale: [0.8, 0.9, 1.8],
+        shortDesc: 'Music and emotion',
+        description: 'The right temporal lobe specializes in processing music, emotional tone of voice, and non-verbal sounds. It helps you recognize melodies, understand sarcasm from tone, and process spatial sounds to locate where noises come from.',
+        functions: ['Music perception and appreciation', 'Emotional prosody (tone of voice)', 'Spatial sound processing', 'Non-verbal auditory patterns', 'Visual-spatial processing'],
+        funFact: 'Professional musicians have significantly larger right temporal lobes than non-musicians, showing how training physically reshapes the brain.',
+        relatedRegions: ['temporal-lobe-l', 'amygdala', 'hippocampus']
+    },
+    {
+        id: 'hippocampus',
+        name: 'Hippocampus',
+        color: 0x00e5ff,
+        position: [0, -0.3, 0],
+        scale: [0.6, 0.4, 1.0],
+        shortDesc: 'Memory formation center',
+        description: 'Shaped like a seahorse and nestled deep within the brain, the hippocampus is the gateway to forming new memories. Every new fact you learn, every experience you remember, passes through here first. It acts as a temporary holding station before memories are consolidated to long-term storage in the cortex during sleep.',
+        functions: ['New memory formation', 'Spatial memory and navigation', 'Learning consolidation', 'Context and episodic memory', 'One of the few sites of adult neurogenesis'],
+        funFact: 'London taxi drivers who memorize the city\'s complex street network have measurably larger hippocampi — proof that learning physically grows this brain region.',
+        relatedRegions: ['amygdala', 'prefrontal-cortex', 'temporal-lobe-l']
+    },
+    {
+        id: 'amygdala',
+        name: 'Amygdala',
+        color: 0xff6b9d,
+        position: [0, -0.5, 0.8],
+        scale: [0.5, 0.4, 0.5],
+        shortDesc: 'Emotional processing center',
+        description: 'The amygdala is an almond-shaped structure that acts as the brain\'s emotional alarm system. It rapidly processes threats and triggers fear responses before your conscious mind is even aware of danger. It also stamps emotional significance onto memories, which is why emotionally charged events are remembered more vividly.',
+        functions: ['Emotional processing and fear response', 'Threat detection and fight-or-flight', 'Emotional memory tagging', 'Social and facial emotion recognition', 'Anxiety and stress regulation'],
+        funFact: 'The amygdala can trigger a fear response in just 12 milliseconds — about 10 times faster than conscious thought, which is why you jump before you realize why.',
+        relatedRegions: ['hippocampus', 'prefrontal-cortex', 'brain-stem']
+    },
+    {
+        id: 'cerebellum',
+        name: 'Cerebellum',
+        color: 0xa06cd5,
+        position: [0, -1.5, -2.0],
+        scale: [1.8, 1.0, 1.2],
+        shortDesc: 'Coordination and balance',
+        description: 'The cerebellum (Latin for "little brain") sits at the back and bottom of the brain and contains more neurons than the rest of the brain combined. It fine-tunes all motor activity, maintains balance, and is crucial for learning procedural skills like riding a bike or playing piano. It works silently in the background, making your movements smooth and coordinated.',
+        functions: ['Motor coordination and fine-tuning', 'Balance and posture', 'Procedural and motor learning', 'Timing and rhythm', 'Cognitive automation'],
+        funFact: 'Despite being only 10% of the brain\'s volume, the cerebellum contains about 80% of all neurons — approximately 69 billion cells devoted to coordination.',
+        relatedRegions: ['motor-cortex', 'brain-stem', 'parietal-lobe']
+    },
+    {
+        id: 'brain-stem',
+        name: 'Brain Stem',
+        color: 0x7bed9f,
+        position: [0, -2.2, -0.5],
+        scale: [0.5, 1.2, 0.6],
+        shortDesc: 'Life support system',
+        description: 'The brain stem is the oldest and most primitive part of the brain, connecting it to the spinal cord. It controls all the automatic functions you never think about — breathing, heart rate, blood pressure, and sleep cycles. It\'s the relay station through which all signals between brain and body must pass.',
+        functions: ['Breathing and heart rate control', 'Sleep-wake cycle regulation', 'Swallowing and digestion reflexes', 'Relay station for neural signals', 'Consciousness and alertness'],
+        funFact: 'The brain stem is so vital that it\'s the last part of the brain to shut down. "Brain death" is legally defined as the irreversible loss of brain stem function.',
+        relatedRegions: ['cerebellum', 'amygdala', 'hippocampus']
+    }
+];
+
+const LEARNING_TOPICS = [
+    {
+        id: 'synaptic-plasticity',
+        name: 'Synaptic Plasticity',
+        shortDesc: 'How connections between neurons change with experience',
+        content: `<h3>Synaptic Plasticity</h3>
+            <p>"Neurons that fire together, wire together" — this principle, known as Hebb's Rule, is the foundation of all learning. Every time you practice a skill or study a concept, the synaptic connections between the involved neurons are physically strengthened.</p>
+            <div class="key-point"><strong>Strengthening:</strong> Repeated activation increases neurotransmitter release and receptor density at the synapse, making signal transmission faster and more reliable.</div>
+            <div class="key-point"><strong>Weakening:</strong> Connections that are rarely used gradually weaken through synaptic pruning — "use it or lose it" at the cellular level.</div>
+            <p>This is why practice makes perfect: each repetition literally builds a stronger neural pathway, making the next activation easier and faster.</p>`
+    },
+    {
+        id: 'ltp',
+        name: 'Long-Term Potentiation',
+        shortDesc: 'The cellular mechanism of memory formation',
+        content: `<h3>Long-Term Potentiation (LTP)</h3>
+            <p>LTP is the molecular mechanism behind synaptic plasticity. When a synapse is repeatedly stimulated in quick succession, a cascade of molecular events permanently strengthens that connection.</p>
+            <div class="key-point"><strong>Phase 1 — Early LTP:</strong> Lasts 1-3 hours. Existing proteins are modified, and more AMPA receptors are inserted into the synapse membrane, increasing sensitivity.</div>
+            <div class="key-point"><strong>Phase 2 — Late LTP:</strong> Lasts days to years. New genes are activated, new proteins are synthesized, and entirely new synaptic connections can grow.</div>
+            <p>LTP is why cramming is less effective than spaced study: you need time between sessions to allow Late LTP to build permanent structural changes.</p>`
+    },
+    {
+        id: 'memory-consolidation',
+        name: 'Memory Consolidation',
+        shortDesc: 'How short-term memories become permanent',
+        content: `<h3>Memory Consolidation</h3>
+            <p>New memories are initially fragile, stored temporarily in the hippocampus. Through a process called consolidation, they are gradually transferred to the cortex for permanent storage. This transfer happens primarily during sleep.</p>
+            <div class="key-point"><strong>Encoding:</strong> The hippocampus rapidly captures new experiences and forms initial memory traces by linking neural patterns across brain regions.</div>
+            <div class="key-point"><strong>Replay:</strong> During sleep, the hippocampus "replays" the day's experiences, sending repeated signals to the cortex to strengthen cortical connections.</div>
+            <div class="key-point"><strong>Integration:</strong> Over weeks, memories become independent of the hippocampus and are woven into existing knowledge networks in the cortex.</div>
+            <p>This is why "sleeping on it" genuinely helps with learning and problem-solving — your brain is literally reorganizing information overnight.</p>`
+    },
+    {
+        id: 'sleep-learning',
+        name: 'The Role of Sleep',
+        shortDesc: 'Why sleep is essential for learning and memory',
+        content: `<h3>Sleep and Learning</h3>
+            <p>Sleep is not passive rest — it's an active process critical for learning. Different sleep stages serve different memory functions:</p>
+            <div class="key-point"><strong>NREM Stage 3 (Deep Sleep):</strong> The hippocampus replays and transfers factual and episodic memories to the cortex. Sleep spindles — bursts of neural activity — tag which memories to keep.</div>
+            <div class="key-point"><strong>REM Sleep (Dreaming):</strong> Emotional memories are processed, creative connections are formed, and procedural memories (motor skills) are consolidated. Your brain runs simulations to extract patterns.</div>
+            <div class="key-point"><strong>Synaptic Homeostasis:</strong> During sleep, overall synaptic strength is scaled down, boosting signal-to-noise ratio. This "pruning" keeps only the strongest (most practiced) connections.</div>
+            <p>Just one night of poor sleep can reduce learning capacity by up to 40%. The brain literally cannot form new memories efficiently without adequate sleep.</p>`
+    },
+    {
+        id: 'spaced-repetition',
+        name: 'Spaced Repetition',
+        shortDesc: 'The optimal timing for review and retention',
+        content: `<h3>Spaced Repetition</h3>
+            <p>The Ebbinghaus Forgetting Curve shows that without review, we forget approximately 70% of new information within 24 hours. However, strategically timed reviews can flatten this curve dramatically.</p>
+            <div class="key-point"><strong>The Spacing Effect:</strong> Information reviewed at increasing intervals (1 day, 3 days, 7 days, 21 days...) is retained far longer than information crammed in a single session.</div>
+            <div class="key-point"><strong>Why It Works:</strong> Each review triggers another round of LTP. The slight difficulty of recalling fading information strengthens the retrieval pathway more than easy review does ("desirable difficulty").</div>
+            <div class="key-point"><strong>Optimal Intervals:</strong> Review just before you would forget — this maximizes the strengthening effect. Modern spaced repetition algorithms (like Anki) automate this timing.</div>
+            <p>Spaced repetition is arguably the most evidence-backed learning technique in all of cognitive science.</p>`
+    },
+    {
+        id: 'neurogenesis',
+        name: 'Neurogenesis',
+        shortDesc: 'How new neurons are born in the adult brain',
+        content: `<h3>Neurogenesis</h3>
+            <p>Contrary to the old belief that "you can't grow new brain cells," the hippocampus continues producing new neurons throughout life in a region called the dentate gyrus. These newborn neurons are crucial for learning and memory.</p>
+            <div class="key-point"><strong>Exercise:</strong> Aerobic exercise is the most potent stimulus for neurogenesis, increasing production by 200-300%. Running, swimming, and cycling are particularly effective.</div>
+            <div class="key-point"><strong>Learning:</strong> Engaging in complex learning tasks helps newborn neurons survive and integrate into existing circuits. Without stimulation, most new neurons die within weeks.</div>
+            <div class="key-point"><strong>Sleep:</strong> Growth factors released during deep sleep support the survival and maturation of new neurons.</div>
+            <div class="key-point"><strong>Stress:</strong> Chronic stress and high cortisol levels suppress neurogenesis. This is one mechanism by which prolonged stress impairs memory and learning.</div>
+            <p>The combination of exercise, learning, adequate sleep, and stress management creates optimal conditions for brain growth at any age.</p>`
+    }
+];
+
+// ==================== STATE ====================
+
+const state = {
+    activeTab: 'brain-atlas',
+    selectedRegion: null,
+    hoveredRegion: null,
+    learningTopic: null,
+    animSpeed: 1.0,
+    autoRotateTimeout: null,
+    brainMeshes: [],
+    targetStates: new Map(),
+    cameraTarget: new THREE.Vector3(0, 0, 0),
+    introComplete: false,
+};
+
+// ==================== THREE.JS SETUP ====================
+
+const viewport = document.getElementById('viewport');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+viewport.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x0a0a1a, 12, 28);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+camera.position.set(0, 2, 12);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.minDistance = 5;
+controls.maxDistance = 20;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
+
+// Lighting
+scene.add(new THREE.AmbientLight(0x404080, 0.6));
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+keyLight.position.set(5, 5, 5);
+scene.add(keyLight);
+const fillLight = new THREE.PointLight(0x6c63ff, 0.8, 20);
+fillLight.position.set(-3, 2, 3);
+scene.add(fillLight);
+const backLight = new THREE.PointLight(0x00e5ff, 0.5, 20);
+backLight.position.set(3, -1, -3);
+scene.add(backLight);
+
+const clock = new THREE.Clock();
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+// ==================== BUILD BRAIN ====================
+
+const brainGroup = new THREE.Group();
+scene.add(brainGroup);
+
+// Outer shell
+const shellGeo = new THREE.SphereGeometry(3.2, 64, 48);
+const shellMat = new THREE.MeshPhysicalMaterial({
+    color: 0x6c63ff,
+    transparent: true,
+    opacity: 0.06,
+    roughness: 0.5,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+});
+const shell = new THREE.Mesh(shellGeo, shellMat);
+shell.scale.set(1.0, 0.85, 1.1);
+brainGroup.add(shell);
+
+// Region meshes
+const regionGeo = new THREE.SphereGeometry(1, 32, 24);
+const labelsContainer = document.getElementById('labels-container');
+
+BRAIN_REGIONS.forEach(region => {
+    const mat = new THREE.MeshPhysicalMaterial({
+        color: region.color,
+        transparent: true,
+        opacity: 0.7,
+        roughness: 0.3,
+        metalness: 0.1,
+        emissive: region.color,
+        emissiveIntensity: 0.15,
+        clearcoat: 0.3,
+    });
+    const mesh = new THREE.Mesh(regionGeo, mat);
+    mesh.position.set(...region.position);
+    mesh.scale.set(...region.scale);
+    mesh.userData = { regionId: region.id };
+    brainGroup.add(mesh);
+    state.brainMeshes.push(mesh);
+    state.targetStates.set(region.id, { opacity: 0.7, emissive: 0.15, scale: 1.0 });
+
+    // Label
+    const label = document.createElement('div');
+    label.className = 'region-label';
+    label.textContent = region.name;
+    label.dataset.regionId = region.id;
+    labelsContainer.appendChild(label);
+});
+
+// Background particles
+const particleCount = 300;
+const particleGeo = new THREE.BufferGeometry();
+const particlePositions = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount; i++) {
+    particlePositions[i * 3] = (Math.random() - 0.5) * 30;
+    particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+    particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+}
+particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+const particleMat = new THREE.PointsMaterial({
+    color: 0x6c63ff,
+    size: 0.05,
+    transparent: true,
+    opacity: 0.4,
+    sizeAttenuation: true,
+});
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+// ==================== NEURAL ACTIVITY 3D (for Neural Activity tab) ====================
+
+const neuronGroup = new THREE.Group();
+neuronGroup.visible = false;
+scene.add(neuronGroup);
+
+// Cell body
+const cellBodyGeo = new THREE.SphereGeometry(0.8, 32, 32);
+const cellBodyMat = new THREE.MeshPhysicalMaterial({
+    color: 0x6c63ff,
+    emissive: 0x6c63ff,
+    emissiveIntensity: 0.2,
+    roughness: 0.4,
+    transparent: true,
+    opacity: 0.8,
+    clearcoat: 0.5,
+});
+const cellBody = new THREE.Mesh(cellBodyGeo, cellBodyMat);
+neuronGroup.add(cellBody);
+
+// Nucleus
+const nucleusGeo = new THREE.SphereGeometry(0.35, 24, 24);
+const nucleusMat = new THREE.MeshPhysicalMaterial({
+    color: 0x9c63ff,
+    emissive: 0x9c63ff,
+    emissiveIntensity: 0.3,
+    roughness: 0.3,
+    transparent: true,
+    opacity: 0.9,
+});
+const nucleus = new THREE.Mesh(nucleusGeo, nucleusMat);
+neuronGroup.add(nucleus);
+
+// Axon path
+const axonPoints = [
+    new THREE.Vector3(0.7, 0, 0),
+    new THREE.Vector3(2, 0.3, 0),
+    new THREE.Vector3(4, -0.2, 0.3),
+    new THREE.Vector3(6, 0.1, -0.1),
+    new THREE.Vector3(8, -0.3, 0.2),
+    new THREE.Vector3(10, 0, 0),
+];
+const axonCurve = new THREE.CatmullRomCurve3(axonPoints);
+const axonGeo = new THREE.TubeGeometry(axonCurve, 64, 0.08, 8, false);
+const axonMat = new THREE.MeshPhysicalMaterial({
+    color: 0x00e5ff,
+    emissive: 0x00e5ff,
+    emissiveIntensity: 0.1,
+    roughness: 0.5,
+    transparent: true,
+    opacity: 0.7,
+});
+const axon = new THREE.Mesh(axonGeo, axonMat);
+neuronGroup.add(axon);
+
+// Myelin sheaths
+const myelinPositions = [0.15, 0.3, 0.45, 0.6, 0.75, 0.88];
+const myelinMeshes = [];
+myelinPositions.forEach(t => {
+    const point = axonCurve.getPointAt(t);
+    const tangent = axonCurve.getTangentAt(t);
+    const myelinGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.8, 12);
+    const myelinMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffd93d,
+        emissive: 0xffd93d,
+        emissiveIntensity: 0.05,
+        transparent: true,
+        opacity: 0.5,
+        roughness: 0.6,
+    });
+    const myelin = new THREE.Mesh(myelinGeo, myelinMat);
+    myelin.position.copy(point);
+    myelin.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tangent.normalize());
+    neuronGroup.add(myelin);
+    myelinMeshes.push(myelin);
+});
+
+// Dendrites
+function createDendrite(origin, direction, length, depth) {
+    if (depth > 3) return;
+    const end = origin.clone().add(direction.clone().multiplyScalar(length));
+    const mid = origin.clone().lerp(end, 0.5).add(new THREE.Vector3(
+        (Math.random() - 0.5) * 0.3,
+        (Math.random() - 0.5) * 0.3,
+        (Math.random() - 0.5) * 0.3
+    ));
+    const curve = new THREE.CatmullRomCurve3([origin, mid, end]);
+    const geo = new THREE.TubeGeometry(curve, 12, 0.04 / depth, 6, false);
+    const mat = new THREE.MeshPhysicalMaterial({
+        color: 0xff6b9d,
+        emissive: 0xff6b9d,
+        emissiveIntensity: 0.1,
+        transparent: true,
+        opacity: 0.6,
+        roughness: 0.5,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    neuronGroup.add(mesh);
+
+    if (depth < 3) {
+        for (let i = 0; i < 2; i++) {
+            const newDir = direction.clone().add(new THREE.Vector3(
+                (Math.random() - 0.5) * 1.5,
+                (Math.random() - 0.5) * 1.5,
+                (Math.random() - 0.5) * 1.5
+            )).normalize();
+            createDendrite(end, newDir, length * 0.6, depth + 1);
+        }
+    }
+}
+
+// Create dendrites from cell body
+for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * Math.PI * 2;
+    const dir = new THREE.Vector3(
+        -0.5 + Math.cos(angle) * 0.8,
+        Math.sin(angle) * 0.8,
+        (Math.random() - 0.5) * 0.6
+    ).normalize();
+    createDendrite(new THREE.Vector3(-0.7, 0, 0).add(dir.clone().multiplyScalar(0.3)), dir, 1.2, 1);
+}
+
+// Axon terminal bulbs
+const terminalPositions = [
+    new THREE.Vector3(10.3, 0.3, 0.2),
+    new THREE.Vector3(10.3, -0.3, -0.1),
+    new THREE.Vector3(10.5, 0, 0.1),
+];
+terminalPositions.forEach(pos => {
+    const geo = new THREE.SphereGeometry(0.15, 16, 16);
+    const mat = new THREE.MeshPhysicalMaterial({
+        color: 0x00e5ff,
+        emissive: 0x00e5ff,
+        emissiveIntensity: 0.3,
+        transparent: true,
+        opacity: 0.8,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(pos);
+    neuronGroup.add(mesh);
+});
+
+// Signal propagation sphere
+const signalGeo = new THREE.SphereGeometry(0.25, 16, 16);
+const signalMat = new THREE.MeshBasicMaterial({
+    color: 0x00ff88,
+    transparent: true,
+    opacity: 0.9,
+});
+const signalSphere = new THREE.Mesh(signalGeo, signalMat);
+signalSphere.visible = false;
+neuronGroup.add(signalSphere);
+
+// Signal light
+const signalLight = new THREE.PointLight(0x00ff88, 2, 3);
+signalLight.visible = false;
+neuronGroup.add(signalLight);
+
+// Neurotransmitter particles
+const ntCount = 100;
+const ntGeo = new THREE.BufferGeometry();
+const ntPositions = new Float32Array(ntCount * 3);
+const ntVelocities = [];
+const ntLifetimes = new Float32Array(ntCount);
+ntGeo.setAttribute('position', new THREE.BufferAttribute(ntPositions, 3));
+const ntMat = new THREE.PointsMaterial({
+    color: 0x00e5ff,
+    size: 0.08,
+    transparent: true,
+    opacity: 0.8,
+    sizeAttenuation: true,
+});
+const ntParticles = new THREE.Points(ntGeo, ntMat);
+ntParticles.visible = false;
+neuronGroup.add(ntParticles);
+
+for (let i = 0; i < ntCount; i++) {
+    ntVelocities.push(new THREE.Vector3());
+    ntLifetimes[i] = 0;
+}
+
+let signalT = 0;
+let ntBurstActive = false;
+
+// ==================== LEARNING SCENE OBJECTS ====================
+
+const learnGroup = new THREE.Group();
+learnGroup.visible = false;
+scene.add(learnGroup);
+
+// Two neurons for synaptic plasticity / LTP
+function createSimpleNeuron(x, color) {
+    const group = new THREE.Group();
+    const body = new THREE.Mesh(
+        new THREE.SphereGeometry(0.6, 24, 24),
+        new THREE.MeshPhysicalMaterial({
+            color, emissive: color, emissiveIntensity: 0.15,
+            transparent: true, opacity: 0.8, roughness: 0.4,
+        })
+    );
+    group.add(body);
+
+    // Short axon
+    const axPts = x < 0
+        ? [new THREE.Vector3(0.5, 0, 0), new THREE.Vector3(2.5, 0, 0)]
+        : [new THREE.Vector3(-0.5, 0, 0), new THREE.Vector3(-2.5, 0, 0)];
+    const axCurve = new THREE.CatmullRomCurve3(axPts);
+    const axGeo = new THREE.TubeGeometry(axCurve, 16, 0.06, 8, false);
+    const axMesh = new THREE.Mesh(axGeo, new THREE.MeshPhysicalMaterial({
+        color, emissive: color, emissiveIntensity: 0.1,
+        transparent: true, opacity: 0.6, roughness: 0.5,
+    }));
+    group.add(axMesh);
+
+    group.position.x = x;
+    return group;
+}
+
+const neuronA = createSimpleNeuron(-3, 0x6c63ff);
+const neuronB = createSimpleNeuron(3, 0xff6b9d);
+learnGroup.add(neuronA);
+learnGroup.add(neuronB);
+
+// Synapse glow
+const synapseGeo = new THREE.SphereGeometry(0.3, 16, 16);
+const synapseMat = new THREE.MeshBasicMaterial({
+    color: 0x00ff88,
+    transparent: true,
+    opacity: 0.0,
+});
+const synapseMesh = new THREE.Mesh(synapseGeo, synapseMat);
+synapseMesh.position.set(0, 0, 0);
+learnGroup.add(synapseMesh);
+
+// Signal pulse for learning scene
+const learnSignalGeo = new THREE.SphereGeometry(0.15, 12, 12);
+const learnSignalMat = new THREE.MeshBasicMaterial({
+    color: 0x00e5ff,
+    transparent: true,
+    opacity: 0.9,
+});
+const learnSignal = new THREE.Mesh(learnSignalGeo, learnSignalMat);
+learnSignal.visible = false;
+learnGroup.add(learnSignal);
+
+let learnSignalT = 0;
+let synapseStrength = 0;
+let learnPulseCount = 0;
+
+// ==================== BUILD SIDEBAR ====================
+
+function buildRegionList() {
+    const list = document.getElementById('region-list');
+    list.innerHTML = '';
+    BRAIN_REGIONS.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'region-card';
+        card.dataset.regionId = r.id;
+        card.innerHTML = `
+            <div class="region-dot" style="background:#${r.color.toString(16).padStart(6, '0')};
+                box-shadow: 0 0 8px #${r.color.toString(16).padStart(6, '0')}44;"></div>
+            <div>
+                <div class="region-card-name">${r.name}</div>
+                <div class="region-card-short">${r.shortDesc}</div>
+            </div>`;
+        card.addEventListener('click', () => selectRegion(r.id));
+        list.appendChild(card);
+    });
+}
+
+function buildLearningList() {
+    const list = document.getElementById('learning-list');
+    list.innerHTML = '';
+    LEARNING_TOPICS.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'topic-card';
+        card.dataset.topicId = t.id;
+        card.innerHTML = `
+            <div class="topic-card-name">${t.name}</div>
+            <div class="topic-card-desc">${t.shortDesc}</div>`;
+        card.addEventListener('click', () => selectTopic(t.id));
+        list.appendChild(card);
+    });
+}
+
+buildRegionList();
+buildLearningList();
+
+// ==================== INTERACTION ====================
+
+function selectRegion(regionId) {
+    if (state.selectedRegion === regionId) {
+        deselectRegion();
+        return;
+    }
+    state.selectedRegion = regionId;
+    const region = BRAIN_REGIONS.find(r => r.id === regionId);
+
+    // Update target states
+    BRAIN_REGIONS.forEach(r => {
+        if (r.id === regionId) {
+            state.targetStates.set(r.id, { opacity: 0.9, emissive: 0.5, scale: 1.08 });
+        } else {
+            state.targetStates.set(r.id, { opacity: 0.2, emissive: 0.02, scale: 1.0 });
+        }
+    });
+
+    // Camera target
+    const mesh = state.brainMeshes.find(m => m.userData.regionId === regionId);
+    if (mesh) {
+        state.cameraTarget.copy(mesh.position);
+    }
+
+    // Update sidebar
+    const list = document.getElementById('region-list');
+    const detail = document.getElementById('detail-panel');
+    list.classList.add('hidden');
+    detail.classList.add('active');
+
+    const colorHex = '#' + region.color.toString(16).padStart(6, '0');
+    detail.innerHTML = `
+        <button class="detail-back" onclick="window.deselectRegion()">&larr; All Regions</button>
+        <div class="detail-header">
+            <div class="detail-dot" style="background:${colorHex}; color:${colorHex};"></div>
+            <div class="detail-name">${region.name}</div>
+        </div>
+        <p class="detail-desc">${region.description}</p>
+        <div class="detail-section-title">Key Functions</div>
+        <ul class="detail-functions">
+            ${region.functions.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+        <div class="fun-fact">
+            <div class="fun-fact-label">Did you know?</div>
+            ${region.funFact}
+        </div>
+        <div class="detail-section-title">Related Regions</div>
+        <div class="related-links">
+            ${region.relatedRegions.map(id => {
+                const rel = BRAIN_REGIONS.find(r => r.id === id);
+                return `<span class="related-link" onclick="window.selectRegion('${id}')">${rel ? rel.name : id}</span>`;
+            }).join('')}
+        </div>`;
+
+    // Update cards
+    document.querySelectorAll('.region-card').forEach(c => {
+        c.classList.toggle('active', c.dataset.regionId === regionId);
+    });
+}
+
+function deselectRegion() {
+    state.selectedRegion = null;
+    state.cameraTarget.set(0, 0, 0);
+
+    BRAIN_REGIONS.forEach(r => {
+        state.targetStates.set(r.id, { opacity: 0.7, emissive: 0.15, scale: 1.0 });
+    });
+
+    const list = document.getElementById('region-list');
+    const detail = document.getElementById('detail-panel');
+    list.classList.remove('hidden');
+    detail.classList.remove('active');
+
+    document.querySelectorAll('.region-card').forEach(c => c.classList.remove('active'));
+}
+
+window.selectRegion = selectRegion;
+window.deselectRegion = deselectRegion;
+
+function selectTopic(topicId) {
+    state.learningTopic = topicId;
+    const topic = LEARNING_TOPICS.find(t => t.id === topicId);
+
+    const list = document.getElementById('learning-list');
+    const detail = document.getElementById('learning-detail');
+    list.classList.add('hidden');
+    detail.classList.add('active');
+    detail.innerHTML = `
+        <button class="detail-back" onclick="window.deselectTopic()">&larr; All Topics</button>
+        <div class="learning-content">${topic.content}</div>`;
+
+    document.querySelectorAll('.topic-card').forEach(c => {
+        c.classList.toggle('active', c.dataset.topicId === topicId);
+    });
+
+    // Reset learning animation
+    learnPulseCount = 0;
+    synapseStrength = 0;
+    learnSignalT = 0;
+}
+
+function deselectTopic() {
+    state.learningTopic = null;
+    const list = document.getElementById('learning-list');
+    const detail = document.getElementById('learning-detail');
+    list.classList.remove('hidden');
+    detail.classList.remove('active');
+    document.querySelectorAll('.topic-card').forEach(c => c.classList.remove('active'));
+}
+
+window.deselectTopic = deselectTopic;
+
+// Tab switching
+function switchTab(tab) {
+    state.activeTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+
+    document.getElementById('atlas-sidebar').style.display = tab === 'brain-atlas' ? 'block' : 'none';
+    document.getElementById('learn-sidebar').style.display = tab === 'how-we-learn' ? 'block' : 'none';
+    const neuralInfo = document.getElementById('neural-info');
+    neuralInfo.classList.toggle('active', tab === 'neural-activity');
+
+    brainGroup.visible = tab === 'brain-atlas';
+    neuronGroup.visible = tab === 'neural-activity';
+    learnGroup.visible = tab === 'how-we-learn';
+
+    // Reset camera for each tab
+    if (tab === 'brain-atlas') {
+        camera.position.set(0, 2, 12);
+        controls.target.set(0, 0, 0);
+        controls.autoRotate = true;
+    } else if (tab === 'neural-activity') {
+        camera.position.set(5, 2, 8);
+        controls.target.set(5, 0, 0);
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.3;
+        signalT = 0;
+    } else if (tab === 'how-we-learn') {
+        camera.position.set(0, 1, 8);
+        controls.target.set(0, 0, 0);
+        controls.autoRotate = false;
+        learnSignalT = 0;
+        learnPulseCount = 0;
+        synapseStrength = 0;
+    }
+
+    // Update labels visibility
+    document.querySelectorAll('.region-label').forEach(l => {
+        l.style.display = tab === 'brain-atlas' ? 'block' : 'none';
+    });
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => switchTab(t.dataset.tab));
+});
+
+// Raycasting
+renderer.domElement.addEventListener('pointerdown', (e) => {
+    if (state.activeTab !== 'brain-atlas') return;
+
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(pointer, camera);
+    const intersects = raycaster.intersectObjects(state.brainMeshes);
+
+    if (intersects.length > 0) {
+        selectRegion(intersects[0].object.userData.regionId);
+    }
+});
+
+// Hover
+renderer.domElement.addEventListener('pointermove', (e) => {
+    if (state.activeTab !== 'brain-atlas') return;
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(pointer, camera);
+    const intersects = raycaster.intersectObjects(state.brainMeshes);
+
+    if (intersects.length > 0) {
+        renderer.domElement.style.cursor = 'pointer';
+        state.hoveredRegion = intersects[0].object.userData.regionId;
+    } else {
+        renderer.domElement.style.cursor = 'default';
+        state.hoveredRegion = null;
+    }
+});
+
+// Keyboard
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        deselectRegion();
+        deselectTopic();
+    }
+    if (e.key === '1') switchTab('brain-atlas');
+    if (e.key === '2') switchTab('how-we-learn');
+    if (e.key === '3') switchTab('neural-activity');
+});
+
+// Speed slider
+document.getElementById('speed-slider').addEventListener('input', (e) => {
+    state.animSpeed = parseFloat(e.target.value);
+});
+
+// ==================== 2D NEURAL STRIP ====================
+
+const stripCanvas = document.getElementById('neural-strip');
+const stripCtx = stripCanvas.getContext('2d');
+
+function resizeStrip() {
+    const panel = document.getElementById('bottom-panel');
+    stripCanvas.width = panel.clientWidth * window.devicePixelRatio;
+    stripCanvas.height = panel.clientHeight * window.devicePixelRatio;
+    stripCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+}
+
+function drawNeuralStrip(time) {
+    const w = stripCanvas.width / window.devicePixelRatio;
+    const h = stripCanvas.height / window.devicePixelRatio;
+
+    stripCtx.clearRect(0, 0, w, h);
+
+    const neuronCount = 8;
+    const spacing = w / (neuronCount + 1);
+    const cy = h / 2;
+    const speed = state.animSpeed;
+    const t = (time * 0.001 * speed) % (neuronCount + 2);
+
+    for (let i = 0; i < neuronCount; i++) {
+        const x = spacing * (i + 1);
+
+        // Axon line to next neuron
+        if (i < neuronCount - 1) {
+            const nx = spacing * (i + 2);
+            stripCtx.beginPath();
+            stripCtx.moveTo(x + 12, cy);
+            stripCtx.lineTo(nx - 12, cy);
+            stripCtx.strokeStyle = 'rgba(0, 229, 255, 0.2)';
+            stripCtx.lineWidth = 2;
+            stripCtx.stroke();
+        }
+
+        // Neuron body
+        const dist = Math.abs(t - (i + 1));
+        const glow = Math.max(0, 1 - dist * 0.8);
+
+        stripCtx.beginPath();
+        stripCtx.arc(x, cy, 10, 0, Math.PI * 2);
+        const bodyColor = glow > 0.1
+            ? `rgba(0, 255, 136, ${0.3 + glow * 0.7})`
+            : 'rgba(108, 99, 255, 0.4)';
+        stripCtx.fillStyle = bodyColor;
+        stripCtx.fill();
+        stripCtx.strokeStyle = glow > 0.1
+            ? `rgba(0, 255, 136, ${0.5 + glow * 0.5})`
+            : 'rgba(108, 99, 255, 0.6)';
+        stripCtx.lineWidth = 1.5;
+        stripCtx.stroke();
+
+        // Glow effect
+        if (glow > 0.1) {
+            stripCtx.beginPath();
+            stripCtx.arc(x, cy, 18, 0, Math.PI * 2);
+            stripCtx.fillStyle = `rgba(0, 255, 136, ${glow * 0.2})`;
+            stripCtx.fill();
+        }
+
+        // Neurotransmitter dots between neurons
+        if (i < neuronCount - 1 && glow > 0.3) {
+            const nx = spacing * (i + 2);
+            for (let j = 0; j < 5; j++) {
+                const px = x + 15 + (nx - x - 30) * (j / 5 + (glow * 0.15));
+                const py = cy + (Math.random() - 0.5) * 10;
+                stripCtx.beginPath();
+                stripCtx.arc(px, py, 2, 0, Math.PI * 2);
+                stripCtx.fillStyle = `rgba(0, 229, 255, ${glow * 0.7})`;
+                stripCtx.fill();
+            }
+        }
+    }
+
+    // Labels
+    stripCtx.font = '10px system-ui';
+    stripCtx.fillStyle = 'rgba(136, 136, 170, 0.6)';
+    stripCtx.textAlign = 'center';
+    stripCtx.fillText('Action Potential Propagation', w / 2, h - 8);
+}
+
+// ==================== ANIMATION LOOP ====================
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function animate(time) {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    const smoothT = 1 - Math.pow(0.003, delta);
+
+    controls.update();
+
+    // Smooth camera target
+    if (state.activeTab === 'brain-atlas') {
+        controls.target.lerp(state.cameraTarget, smoothT * 0.5);
+    }
+
+    // Brain region animations
+    if (state.activeTab === 'brain-atlas') {
+        state.brainMeshes.forEach(mesh => {
+            const target = state.targetStates.get(mesh.userData.regionId);
+            const mat = mesh.material;
+
+            // Hover boost
+            let targetOpacity = target.opacity;
+            let targetEmissive = target.emissive;
+            if (state.hoveredRegion === mesh.userData.regionId && !state.selectedRegion) {
+                targetOpacity = 0.85;
+                targetEmissive = 0.35;
+            }
+
+            mat.opacity = lerp(mat.opacity, targetOpacity, smoothT);
+            mat.emissiveIntensity = lerp(mat.emissiveIntensity, targetEmissive, smoothT);
+
+            const s = target.scale;
+            mesh.scale.x = lerp(mesh.scale.x, BRAIN_REGIONS.find(r => r.id === mesh.userData.regionId).scale[0] * s, smoothT);
+            mesh.scale.y = lerp(mesh.scale.y, BRAIN_REGIONS.find(r => r.id === mesh.userData.regionId).scale[1] * s, smoothT);
+            mesh.scale.z = lerp(mesh.scale.z, BRAIN_REGIONS.find(r => r.id === mesh.userData.regionId).scale[2] * s, smoothT);
+        });
+
+        // Pulsing brain shell
+        shell.material.opacity = 0.04 + Math.sin(time * 0.001) * 0.02;
+    }
+
+    // Update labels
+    if (state.activeTab === 'brain-atlas') {
+        const labels = document.querySelectorAll('.region-label');
+        labels.forEach(label => {
+            const mesh = state.brainMeshes.find(m => m.userData.regionId === label.dataset.regionId);
+            if (!mesh) return;
+
+            const worldPos = new THREE.Vector3();
+            mesh.getWorldPosition(worldPos);
+            worldPos.y += 0.8;
+            worldPos.project(camera);
+
+            const rect = viewport.getBoundingClientRect();
+            const x = (worldPos.x * 0.5 + 0.5) * rect.width;
+            const y = (-worldPos.y * 0.5 + 0.5) * rect.height;
+
+            label.style.left = x + 'px';
+            label.style.top = y + 'px';
+
+            const isSelected = state.selectedRegion === label.dataset.regionId;
+            const isOtherSelected = state.selectedRegion && !isSelected;
+            label.style.opacity = isOtherSelected ? '0.15' : (isSelected ? '1' : '0.7');
+        });
+    }
+
+    // Neural activity animation
+    if (state.activeTab === 'neural-activity') {
+        signalT += delta * state.animSpeed * 0.3;
+        if (signalT > 1.3) {
+            signalT = -0.2;
+            ntBurstActive = false;
+            ntParticles.visible = false;
+        }
+
+        if (signalT >= 0 && signalT <= 1) {
+            signalSphere.visible = true;
+            signalLight.visible = true;
+
+            // Saltatory conduction — jump between myelin gaps
+            let effectiveT = signalT;
+            for (const mt of myelinPositions) {
+                if (Math.abs(signalT - mt) < 0.06) {
+                    effectiveT = signalT < mt ? mt - 0.06 : mt + 0.06;
+                    break;
+                }
+            }
+
+            const pos = axonCurve.getPointAt(Math.min(effectiveT, 1));
+            signalSphere.position.copy(pos);
+            signalLight.position.copy(pos);
+
+            // Cell body glow at start
+            if (signalT < 0.15) {
+                cellBodyMat.emissiveIntensity = 0.2 + (1 - signalT / 0.15) * 0.8;
+            } else {
+                cellBodyMat.emissiveIntensity = lerp(cellBodyMat.emissiveIntensity, 0.2, smoothT);
+            }
+        } else {
+            signalSphere.visible = false;
+            signalLight.visible = false;
+        }
+
+        // Neurotransmitter burst at terminal
+        if (signalT > 0.95 && !ntBurstActive) {
+            ntBurstActive = true;
+            ntParticles.visible = true;
+            const posArr = ntGeo.attributes.position.array;
+            const terminalPos = axonCurve.getPointAt(1);
+            for (let i = 0; i < ntCount; i++) {
+                posArr[i * 3] = terminalPos.x;
+                posArr[i * 3 + 1] = terminalPos.y;
+                posArr[i * 3 + 2] = terminalPos.z;
+                ntVelocities[i].set(
+                    0.5 + Math.random() * 1.5,
+                    (Math.random() - 0.5) * 2,
+                    (Math.random() - 0.5) * 2
+                );
+                ntLifetimes[i] = 1.0;
+            }
+            ntGeo.attributes.position.needsUpdate = true;
+        }
+
+        if (ntBurstActive) {
+            const posArr = ntGeo.attributes.position.array;
+            let allDead = true;
+            for (let i = 0; i < ntCount; i++) {
+                if (ntLifetimes[i] > 0) {
+                    allDead = false;
+                    ntLifetimes[i] -= delta * state.animSpeed * 1.5;
+                    posArr[i * 3] += ntVelocities[i].x * delta * state.animSpeed;
+                    posArr[i * 3 + 1] += ntVelocities[i].y * delta * state.animSpeed;
+                    posArr[i * 3 + 2] += ntVelocities[i].z * delta * state.animSpeed;
+                    ntVelocities[i].multiplyScalar(0.97);
+                } else {
+                    posArr[i * 3] = 0;
+                    posArr[i * 3 + 1] = -100;
+                    posArr[i * 3 + 2] = 0;
+                }
+            }
+            ntGeo.attributes.position.needsUpdate = true;
+            ntMat.opacity = Math.max(0, ntMat.opacity - delta * 0.5);
+            if (allDead) {
+                ntBurstActive = false;
+                ntMat.opacity = 0.8;
+            }
+        }
+    }
+
+    // Learning animations
+    if (state.activeTab === 'how-we-learn') {
+        learnSignalT += delta * state.animSpeed * 0.8;
+
+        if (learnSignalT > 3.0) {
+            learnSignalT = 0;
+            learnPulseCount++;
+            synapseStrength = Math.min(1, learnPulseCount * 0.15);
+        }
+
+        // Signal pulse from neuron A to B
+        if (learnSignalT < 1.5) {
+            learnSignal.visible = true;
+            const px = lerp(-3 + 0.6, 3 - 0.6, learnSignalT / 1.5);
+            learnSignal.position.set(px, 0, 0);
+            learnSignal.material.opacity = learnSignalT < 0.1 ? learnSignalT / 0.1 :
+                learnSignalT > 1.3 ? (1.5 - learnSignalT) / 0.2 : 0.9;
+        } else {
+            learnSignal.visible = false;
+        }
+
+        // Synapse glow based on strength
+        synapseMat.opacity = synapseStrength * 0.6;
+        synapseMesh.scale.setScalar(0.3 + synapseStrength * 0.7);
+
+        // Neuron body glow on pulse
+        const aGlow = learnSignalT < 0.3 ? (0.3 - learnSignalT) / 0.3 : 0;
+        const bGlow = (learnSignalT > 1.2 && learnSignalT < 1.8) ? Math.min(1, (learnSignalT - 1.2) / 0.3) * Math.min(1, (1.8 - learnSignalT) / 0.3) : 0;
+
+        neuronA.children[0].material.emissiveIntensity = 0.15 + aGlow * 0.6;
+        neuronB.children[0].material.emissiveIntensity = 0.15 + bGlow * 0.6;
+    }
+
+    // Render
+    renderer.render(scene, camera);
+
+    // 2D strip
+    drawNeuralStrip(time);
+}
+
+// ==================== RESIZE ====================
+
+function resize() {
+    const rect = viewport.getBoundingClientRect();
+    camera.aspect = rect.width / rect.height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(rect.width, rect.height);
+    resizeStrip();
+}
+
+window.addEventListener('resize', resize);
+new ResizeObserver(resize).observe(viewport);
+resize();
+
+// ==================== INTRO ====================
+
+// Show help tooltip briefly
+const helpTooltip = document.getElementById('help-tooltip');
+setTimeout(() => helpTooltip.classList.add('visible'), 500);
+setTimeout(() => helpTooltip.classList.remove('visible'), 5000);
+
+// Start animation
+animate(0);
+
+</script>
+</body>
+</html>
