@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sources — NeuroExplorer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0a0a1a;
+    --surface: #12122a;
+    --surface-elevated: #1a1a3a;
+    --primary: #6c63ff;
+    --secondary: #00e5ff;
+    --tertiary: #ff6b9d;
+    --text: #e0e0ff;
+    --text-dim: #8888aa;
+    --radius: 12px;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background: var(--surface);
+    border-bottom: 1px solid rgba(108, 99, 255, 0.2);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+}
+
+header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+}
+
+.back-link {
+    color: var(--secondary);
+    text-decoration: none;
+    font-size: 14px;
+    margin-left: auto;
+    transition: opacity 0.2s;
+}
+.back-link:hover { opacity: 0.8; }
+
+/* Main */
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.page-subtitle {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+    max-width: 640px;
+}
+
+/* Section */
+.source-section {
+    margin-bottom: 48px;
+}
+
+.section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--secondary);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+/* Source card */
+.source-card {
+    background: var(--surface);
+    border: 1px solid rgba(108, 99, 255, 0.12);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    transition: border-color 0.3s;
+}
+.source-card:hover {
+    border-color: rgba(108, 99, 255, 0.3);
+}
+
+.source-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.source-authors {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.source-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.85;
+    margin-bottom: 10px;
+}
+
+.source-used {
+    font-size: 12px;
+    color: var(--primary);
+    background: rgba(108, 99, 255, 0.1);
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.source-link {
+    font-size: 12px;
+    color: var(--secondary);
+    text-decoration: none;
+    margin-left: 8px;
+}
+.source-link:hover { text-decoration: underline; }
+
+/* Note box */
+.note-box {
+    background: var(--surface-elevated);
+    border-left: 3px solid var(--tertiary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    opacity: 0.9;
+    margin-bottom: 48px;
+}
+
+.note-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--tertiary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--text-dim);
+    font-size: 13px;
+    border-top: 1px solid rgba(108, 99, 255, 0.1);
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>NEUROEXPLORER</h1>
+    <a href="index.html" class="back-link">&larr; Back to Dashboard</a>
+</header>
+
+<main>
+    <h2 class="page-title">Sources &amp; References</h2>
+    <p class="page-subtitle">
+        The neuroscience content in this dashboard is based on established research and widely-used textbooks.
+        Below are the primary sources organized by topic.
+    </p>
+
+    <div class="note-box">
+        <div class="note-label">Note</div>
+        This dashboard was built as an educational tool. While the content reflects scientific consensus,
+        some figures (response times, percentages) are approximate values commonly cited in the literature
+        rather than precise experimental measurements. For academic use, please consult the original papers.
+    </div>
+
+    <!-- Foundational Textbooks -->
+    <div class="source-section">
+        <div class="section-title">Foundational Textbooks</div>
+
+        <div class="source-card">
+            <div class="source-title">Principles of Neural Science, 6th Edition</div>
+            <div class="source-authors">Kandel, E.R., Koester, J.D., Mack, S.H., & Siegelbaum, S.A. (2021)</div>
+            <div class="source-desc">The definitive neuroscience reference covering neural signaling, synaptic transmission, brain region functions, and the cellular basis of learning and memory.</div>
+            <span class="source-used">Used for: Brain region functions, neural signaling, synaptic transmission</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Neuroscience: Exploring the Brain, 4th Edition</div>
+            <div class="source-authors">Bear, M.F., Connors, B.W., & Paradiso, M.A. (2015)</div>
+            <div class="source-desc">Comprehensive undergraduate textbook covering neuroanatomy, sensory systems, motor control, and higher brain functions including language and cognition.</div>
+            <span class="source-used">Used for: Brain anatomy, sensory processing, motor cortex organization</span>
+        </div>
+    </div>
+
+    <!-- Brain Regions -->
+    <div class="source-section">
+        <div class="section-title">Brain Regions &amp; Neuroanatomy</div>
+
+        <div class="source-card">
+            <div class="source-title">The Cerebral Cortex of Man</div>
+            <div class="source-authors">Penfield, W. & Rasmussen, T. (1950)</div>
+            <div class="source-desc">Classic work that mapped the motor and sensory homunculus through direct cortical stimulation during neurosurgery, showing the distorted body representation on the cortex.</div>
+            <span class="source-used">Used for: Motor cortex homunculus, somatotopic organization</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Navigation-related structural change in the hippocampi of taxi drivers</div>
+            <div class="source-authors">Maguire, E.A., Gadian, D.G., Johnsrude, I.S., et al. (2000). PNAS, 97(8), 4398-4403</div>
+            <div class="source-desc">Landmark structural MRI study showing London taxi drivers have significantly larger posterior hippocampi compared to controls, with volume correlating to time spent navigating.</div>
+            <span class="source-used">Used for: Hippocampus fun fact</span>
+            <a class="source-link" href="https://doi.org/10.1073/pnas.070039597" target="_blank">DOI &rarr;</a>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">The human brain in numbers: a linearly scaled-up primate brain</div>
+            <div class="source-authors">Herculano-Houzel, S. (2009). Frontiers in Human Neuroscience, 3, 31</div>
+            <div class="source-desc">Quantified that the cerebellum contains approximately 80% of all brain neurons (~69 billion) despite comprising only 10% of brain volume.</div>
+            <span class="source-used">Used for: Cerebellum neuron count</span>
+            <a class="source-link" href="https://doi.org/10.3389/neuro.09.031.2009" target="_blank">DOI &rarr;</a>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Hemispatial Neglect</div>
+            <div class="source-authors">Heilman, K.M., Watson, R.T., & Valenstein, E. (2012). Handbook of Clinical Neurology, 106, 459-468</div>
+            <div class="source-desc">Comprehensive review of hemispatial neglect following right parietal lobe damage, where patients ignore stimuli on the contralateral side of space.</div>
+            <span class="source-used">Used for: Parietal lobe fun fact</span>
+        </div>
+    </div>
+
+    <!-- Synaptic Plasticity & LTP -->
+    <div class="source-section">
+        <div class="section-title">Synaptic Plasticity &amp; Learning</div>
+
+        <div class="source-card">
+            <div class="source-title">The Organization of Behavior</div>
+            <div class="source-authors">Hebb, D.O. (1949). New York: Wiley</div>
+            <div class="source-desc">Introduced what became known as "Hebb's Rule" — the foundational principle that neurons that fire together strengthen their connections, forming the basis of associative learning.</div>
+            <span class="source-used">Used for: Synaptic plasticity section, Hebb's Rule</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Long-lasting potentiation of synaptic transmission in the dentate area of the anaesthetized rabbit following stimulation of the perforant path</div>
+            <div class="source-authors">Bliss, T.V.P. & Lømo, T. (1973). Journal of Physiology, 232(2), 331-356</div>
+            <div class="source-desc">The discovery of long-term potentiation (LTP) — demonstrating that brief high-frequency stimulation can produce a lasting increase in synaptic strength, the cellular mechanism underlying memory formation.</div>
+            <span class="source-used">Used for: Long-term potentiation section</span>
+            <a class="source-link" href="https://doi.org/10.1113/jphysiol.1973.sp010273" target="_blank">DOI &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Memory & Sleep -->
+    <div class="source-section">
+        <div class="section-title">Memory Consolidation &amp; Sleep</div>
+
+        <div class="source-card">
+            <div class="source-title">Memory consolidation during sleep: A form of brain reactivation</div>
+            <div class="source-authors">Squire, L.R. & Alvarez, P. (1995). Current Opinion in Neurobiology, 5(2), 169-177</div>
+            <div class="source-desc">Proposed the standard model of memory consolidation, describing how the hippocampus temporarily stores memories and gradually transfers them to neocortical long-term storage.</div>
+            <span class="source-used">Used for: Memory consolidation section</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">About sleep's role in memory</div>
+            <div class="source-authors">Diekelmann, S. & Born, J. (2010). Physiological Reviews, 90(2), 681-766</div>
+            <div class="source-desc">Comprehensive review of how different sleep stages contribute to memory consolidation. Details the role of slow-wave sleep in declarative memory and REM sleep in procedural and emotional memory.</div>
+            <span class="source-used">Used for: Role of sleep section, NREM/REM functions</span>
+            <a class="source-link" href="https://doi.org/10.1152/physrev.00032.2009" target="_blank">DOI &rarr;</a>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Why We Sleep: Unlocking the Power of Sleep and Dreams</div>
+            <div class="source-authors">Walker, M.P. (2017). New York: Scribner</div>
+            <div class="source-desc">Synthesizes decades of sleep research into an accessible account of sleep's role in learning, memory, health, and cognition. Source for the widely-cited figure on sleep deprivation reducing learning capacity.</div>
+            <span class="source-used">Used for: Sleep-learning statistics, sleep spindles</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Sleep-dependent memory consolidation and reconsolidation</div>
+            <div class="source-authors">Walker, M.P. (2006). Sleep Medicine, 7(4), 331-340</div>
+            <div class="source-desc">Details the synaptic homeostasis hypothesis — how sleep scales down overall synaptic strength to improve signal-to-noise ratios while preserving the strongest (most learned) connections.</div>
+            <span class="source-used">Used for: Synaptic homeostasis during sleep</span>
+        </div>
+    </div>
+
+    <!-- Spaced Repetition -->
+    <div class="source-section">
+        <div class="section-title">Spaced Repetition &amp; Forgetting</div>
+
+        <div class="source-card">
+            <div class="source-title">&Uuml;ber das Ged&auml;chtnis (Memory: A Contribution to Experimental Psychology)</div>
+            <div class="source-authors">Ebbinghaus, H. (1885). Leipzig: Duncker & Humblot. English translation: 1913</div>
+            <div class="source-desc">The pioneering work that established the forgetting curve — demonstrating that memory retention decays exponentially over time without review, and that spaced review significantly improves retention.</div>
+            <span class="source-used">Used for: Spaced repetition section, forgetting curve</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Distributed Practice in Verbal Recall Tasks: A Review and Quantitative Synthesis</div>
+            <div class="source-authors">Cepeda, N.J., Pashler, H., Vul, E., et al. (2006). Psychological Bulletin, 132(3), 354-380</div>
+            <div class="source-desc">Meta-analysis of 317 experiments confirming the spacing effect: distributing study sessions over time leads to substantially better long-term retention than massed practice.</div>
+            <span class="source-used">Used for: Spacing effect evidence, optimal intervals</span>
+            <a class="source-link" href="https://doi.org/10.1037/0033-2909.132.3.354" target="_blank">DOI &rarr;</a>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Making Things Hard on Yourself, But in a Good Way: Creating Desirable Difficulties to Enhance Learning</div>
+            <div class="source-authors">Bjork, E.L. & Bjork, R.A. (2011). Psychology and the Real World, 56-64</div>
+            <div class="source-desc">Introduced the concept of "desirable difficulties" — that conditions making learning feel harder (like spacing and retrieval practice) actually strengthen long-term retention.</div>
+            <span class="source-used">Used for: Desirable difficulty concept in spaced repetition</span>
+        </div>
+    </div>
+
+    <!-- Neurogenesis -->
+    <div class="source-section">
+        <div class="section-title">Neurogenesis</div>
+
+        <div class="source-card">
+            <div class="source-title">Neurogenesis in the adult human hippocampus</div>
+            <div class="source-authors">Eriksson, P.S., Perfilieva, E., Bj&ouml;rk-Eriksson, T., et al. (1998). Nature Medicine, 4(11), 1313-1317</div>
+            <div class="source-desc">Landmark study providing the first evidence that new neurons are generated in the adult human hippocampus (dentate gyrus), overturning decades of dogma that the adult brain cannot produce new neurons.</div>
+            <span class="source-used">Used for: Neurogenesis section</span>
+            <a class="source-link" href="https://doi.org/10.1038/3305" target="_blank">DOI &rarr;</a>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Running increases cell proliferation and neurogenesis in the adult mouse dentate gyrus</div>
+            <div class="source-authors">van Praag, H., Kempermann, G., & Gage, F.H. (1999). Nature Neuroscience, 2(3), 266-270</div>
+            <div class="source-desc">Demonstrated that voluntary exercise (running) significantly increases neurogenesis in the hippocampus, establishing the exercise-neurogenesis link.</div>
+            <span class="source-used">Used for: Exercise and neurogenesis</span>
+            <a class="source-link" href="https://doi.org/10.1038/6368" target="_blank">DOI &rarr;</a>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Stress and glucocorticoids impair retrieval of long-term spatial memory</div>
+            <div class="source-authors">de Quervain, D.J., Roozendaal, B., & McGaugh, J.L. (1998). Nature, 394, 787-790</div>
+            <div class="source-desc">Showed that stress hormones (cortisol/glucocorticoids) impair memory retrieval and suppress hippocampal neurogenesis, explaining how chronic stress degrades learning.</div>
+            <span class="source-used">Used for: Stress effects on neurogenesis</span>
+            <a class="source-link" href="https://doi.org/10.1038/29542" target="_blank">DOI &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Emotional Processing -->
+    <div class="source-section">
+        <div class="section-title">Emotional Processing &amp; Fear</div>
+
+        <div class="source-card">
+            <div class="source-title">The Emotional Brain: The Mysterious Underpinnings of Emotional Life</div>
+            <div class="source-authors">LeDoux, J.E. (1996). New York: Simon & Schuster</div>
+            <div class="source-desc">Mapped the fear circuitry of the brain, showing how the amygdala processes threats via a fast subcortical pathway that bypasses conscious awareness — enabling rapid fear responses before conscious recognition.</div>
+            <span class="source-used">Used for: Amygdala response speed, fear processing, emotional memory</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Emotion circuits in the brain</div>
+            <div class="source-authors">LeDoux, J.E. (2000). Annual Review of Neuroscience, 23, 155-184</div>
+            <div class="source-desc">Review of amygdala circuitry in fear conditioning, detailing the "low road" (fast, unconscious) and "high road" (slow, conscious) pathways for threat processing.</div>
+            <span class="source-used">Used for: Amygdala dual-pathway processing</span>
+            <a class="source-link" href="https://doi.org/10.1146/annurev.neuro.23.1.155" target="_blank">DOI &rarr;</a>
+        </div>
+    </div>
+
+    <!-- Neural Signaling -->
+    <div class="source-section">
+        <div class="section-title">Neural Signaling &amp; Neurotransmission</div>
+
+        <div class="source-card">
+            <div class="source-title">From Neuron to Brain, 5th Edition</div>
+            <div class="source-authors">Nicholls, J.G., Martin, A.R., Fuchs, P.A., et al. (2011)</div>
+            <div class="source-desc">Detailed treatment of action potential generation, saltatory conduction along myelinated axons, and synaptic transmission — the cellular processes animated in the Neural Activity tab.</div>
+            <span class="source-used">Used for: Neural activity animations, action potentials, myelin, neurotransmitter release</span>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Molecular Biology of the Cell, 6th Edition</div>
+            <div class="source-authors">Alberts, B., Johnson, A., Lewis, J., et al. (2014)</div>
+            <div class="source-desc">Reference for the molecular mechanisms of synaptic vesicle release, receptor dynamics, and the structural changes underlying long-term potentiation at the synapse.</div>
+            <span class="source-used">Used for: Neurotransmitter release mechanics, AMPA receptor insertion in LTP</span>
+        </div>
+    </div>
+
+    <!-- Music & Language -->
+    <div class="source-section">
+        <div class="section-title">Music, Language &amp; Temporal Lobes</div>
+
+        <div class="source-card">
+            <div class="source-title">Morphology of Heschl's gyrus reflects enhanced activation in the auditory cortex of musicians</div>
+            <div class="source-authors">Schneider, P., Scherg, M., Dosch, H.G., et al. (2002). Nature Neuroscience, 5(7), 688-694</div>
+            <div class="source-desc">Showed structural enlargement of auditory cortex in musicians, supporting the temporal lobe fun fact about musicians having larger right temporal regions.</div>
+            <span class="source-used">Used for: Right temporal lobe and musicians</span>
+            <a class="source-link" href="https://doi.org/10.1038/nn871" target="_blank">DOI &rarr;</a>
+        </div>
+
+        <div class="source-card">
+            <div class="source-title">Wernicke's aphasia</div>
+            <div class="source-authors">Kertesz, A. (1981). Acquired Aphasia, Academic Press, 141-186</div>
+            <div class="source-desc">Clinical characterization of Wernicke's (fluent) aphasia resulting from left temporal lobe damage, where patients produce grammatically correct but semantically empty speech.</div>
+            <span class="source-used">Used for: Left temporal lobe fun fact</span>
+        </div>
+    </div>
+
+    <!-- Prefrontal Development -->
+    <div class="source-section">
+        <div class="section-title">Brain Development</div>
+
+        <div class="source-card">
+            <div class="source-title">Maturation of the adolescent brain</div>
+            <div class="source-authors">Arain, M., Haque, M., Johal, L., et al. (2013). Neuropsychiatric Disease and Treatment, 9, 449-461</div>
+            <div class="source-desc">Reviews evidence that prefrontal cortex myelination and synaptic pruning continue into the mid-20s, explaining the protracted development of executive functions like impulse control and planning.</div>
+            <span class="source-used">Used for: Prefrontal cortex development fun fact (age ~25)</span>
+            <a class="source-link" href="https://doi.org/10.2147/NDT.S39776" target="_blank">DOI &rarr;</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    &copy; 2026 Marian Helcl &Oslash;verli &middot; <a href="index.html" style="color:var(--secondary); text-decoration:none;">Back to NeuroExplorer</a>
+</footer>
+
+</body>
+</html>

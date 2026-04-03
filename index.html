@@ -59,7 +59,6 @@ body {
 .tab-bar {
     display: flex;
     gap: 4px;
-    margin-left: auto;
 }
 
 .tab {
@@ -84,6 +83,23 @@ body {
     white-space: nowrap;
     margin-left: 8px;
     letter-spacing: 0.5px;
+}
+
+.sources-link {
+    font-size: 12px;
+    color: var(--text-dim);
+    text-decoration: none;
+    margin-left: auto;
+    padding: 6px 14px;
+    border: 1px solid rgba(108, 99, 255, 0.25);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+.sources-link:hover {
+    color: var(--secondary);
+    border-color: var(--secondary);
+    background: rgba(0, 229, 255, 0.08);
 }
 
 /* Sidebar */
@@ -452,6 +468,7 @@ body {
         <button class="tab" data-tab="how-we-learn">How We Learn</button>
         <button class="tab" data-tab="neural-activity">Neural Activity</button>
     </div>
+    <a href="sources.html" class="sources-link">Sources</a>
     <span class="author-tag">by Marian Helcl &Oslash;verli</span>
 </div>
 
